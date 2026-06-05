@@ -50,8 +50,11 @@ class Appsmith_Secure_Embed {
         // User role + meta UI
         add_action('show_user_profile', [$this, 'render_appsmith_url_field']);
         add_action('edit_user_profile', [$this, 'render_appsmith_url_field']);
+        add_action('user_new_form', [$this, 'render_appsmith_url_field_new']);
+
         add_action('personal_options_update', [$this, 'save_appsmith_url_field']);
         add_action('edit_user_profile_update', [$this, 'save_appsmith_url_field']);
+        add_action('user_register', [$this, 'save_new_user_appsmith_url']);
 
         // Login redirect for B2B customers
         add_filter('login_redirect', [$this, 'b2b_login_redirect'], 10, 3);
@@ -77,6 +80,57 @@ class Appsmith_Secure_Embed {
             'callback' => [$this, 'verify_token_endpoint'],
             'permission_callback' => '__return_true',
         ]);
+    }
+
+    /**
+     * Render field when creating NEW user
+     */
+    public function render_appsmith_url_field_new($operation) {
+
+        // Only show for adding users
+        if ($operation !== 'add-new-user') {
+            return;
+        }
+
+        ?>
+        <h3>Appsmith</h3>
+
+        <table class="form-table">
+            <tr>
+                <th>
+                    <label for="appsmith_url">Appsmith Embed SRC URL</label>
+                </th>
+                <td>
+                    <input
+                        type="url"
+                        name="appsmith_url"
+                        id="appsmith_url"
+                        class="regular-text"
+                        placeholder="https://appsmith.example.com/embed/..."
+                    />
+
+                    <p class="description">
+                        Assign the Appsmith application URL for this B2B customer.
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <?php
+    }
+
+    /**
+     * Save Appsmith URL when NEW user is created
+     */
+    public function save_new_user_appsmith_url($user_id) {
+
+        if (isset($_POST['appsmith_url'])) {
+
+            update_user_meta(
+                $user_id,
+                'appsmith_url',
+                esc_url_raw($_POST['appsmith_url'])
+            );
+        }
     }
 
     /**
