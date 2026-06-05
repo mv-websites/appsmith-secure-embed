@@ -285,10 +285,31 @@ class Appsmith_Secure_Embed {
 
         $src = esc_url(add_query_arg('token', $token, $appsmith_url));
 
+        // return sprintf(
+        //     '<iframe src="%s" style="width:100%%; height:%s; border:none;"></iframe>',
+        //     $src,
+        //     // intval($atts['height'])
+        //     esc_attr($atts['height'])
+        // );
         return sprintf(
-            '<iframe src="%s" style="width:100%%; height:%s; border:none;"></iframe>',
+            '
+            <iframe
+                id="appsmith-frame"
+                src="%s"
+                style="width:100%%; height:%s; border:none;"
+            ></iframe>
+
+            <script>
+            window.addEventListener("message", function(event) {
+
+                if (event.data?.type === "REDIRECT") {
+                    window.location.href = event.data.url;
+                }
+
+            });
+            </script>
+            ',
             $src,
-            // intval($atts['height'])
             esc_attr($atts['height'])
         );
     }
